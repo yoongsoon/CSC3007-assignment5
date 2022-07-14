@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+        #map {
+            width: 1000px;
+            height: 600px;
+        }
+
+        .circle-with-txt {
+            position: relative;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+        }
+
+        .txt {
+        margin: 0;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -ms-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+        font-size: 16px;
+    }
+               
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.css" /> <!--CSS for leaflet-->
+</head>
+<body>
+    <div id="map"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.8.0/leaflet.js"></script> <!-- JS for leaflet-->
+
+  <script>
+   // Load api data
+    let url = "https://api.data.gov.sg/v1/environment/psi";
+   fetch(url)
+    .then(result => result.json())
+    .then((output) => {
+
+
+    //Receive data
+    let region_metadata = output['region_metadata'];
+    let psi_data = output['items'][0]['readings']['psi_twenty_four_hourly'];
+
+    //Leaflet tiles
+    let tiles = new L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
+    subdomains:['mt0','mt1','mt2','mt3']
+    });
+      
+    //Leaflet map
+    let map = new L.Map("map", {
+    center: [1.347833, 103.809357], 
+    zoom: 12,
+    maxBounds: L.latLngBounds(L.latLng(1.1, 103.5), L.latLng(1.5, 104.3))
+    })
+    .addLayer(tiles);
+
+    //region_metadata containing name of region with longtitude and latitude
+    for (const item of region_metadata) {
+
+        lat_long_array = [item['label_location']['latitude'] , item['label_location']['longitude']];
+        var psi_value = psi_data[item['name']];
+        
+        //Circle Marker
+        var circle =  L.circleMarker(lat_long_array, { 
+            radius: psi_value * 1.5,
+            opacity: .9,                            
+            fillOpacity: 0.3,
+            color: "black"
+
+        });
+
+        // Marker
+        var marker = L.marker(lat_long_array, { 
+                    icon: new L.DivIcon({
+                    html: '<div class="txt">' + psi_data[item['name']] + '</div>',
+                    className: 'circle-with-txt'
+                     })
+        
+                });
+            
+        // Combine the 2 markers
+        var group = L.layerGroup([circle, marker]);
+        
+        // Add the marker group to the map
+        group.addTo(map);
+    };     
+
+   
+    });
+
+
+  </script>
+</body>
+</html>
