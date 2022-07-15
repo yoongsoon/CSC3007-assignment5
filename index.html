@@ -48,9 +48,15 @@
     let psi_data = output['items'][0]['readings']['psi_twenty_four_hourly'];
 
     //Leaflet tiles
-    let tiles = new L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}',{
-    subdomains:['mt0','mt1','mt2','mt3']
+    let tiles = new L.tileLayer('https://maps-{s}.onemap.sg/v3/Default/{z}/{x}/{y}.png', {
+      detectRetina: true,
+      maxZoom: 18,
+      minZoom: 11,
+      //Do not remove this attribution
+      attribution: '<img src="https://docs.onemap.sg/maps/images/oneMap64-01.png" style="height:20px;width:20px;">' +
+                  'New OneMap | Map data © contributors, <a href="http://SLA.gov.sg">Singapore Land Authority</a>'
     });
+       
       
     //Leaflet map
     let map = new L.Map("map", {
@@ -74,6 +80,7 @@
             color: "black"
 
         });
+        
 
         // Marker
         var marker = L.marker(lat_long_array, { 
